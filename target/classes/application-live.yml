@@ -1,0 +1,37 @@
+spring:
+  mail:
+    host: smtp.mailgun.org
+    username: postmaster@3dshowing.com
+    port: 587
+    password: rd4_x12345k7VCyLB_kA0cDn2BQ
+    default-encoding: UTF-8
+  jpa:
+    show-sql: true
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+    username: esmith
+    password:
+
+flyway:
+  enabled: true
+
+tednology:
+  system:
+    contact-emails: brandon.lusignan@gmail.com
+    strategy-window-open1: 00:00:00.000000000 AM
+    strategy-window-close1: 11:59:59.999999999 PM
+    //strategy-window-open2: 11:30:00.000000000 PM
+    //strategy-window-close2: 11:59:59.999999999 PM
+
+jforex:
+  system:
+    url: https://platform.dukascopy.com/demo_4/jforex_4.jnlp
+    username: DEMO2hFspd
+    password: hFspd
+    auto-reconnect: true
+    back-test:
+      enabled: false
+    trades-enabled: true
+    take-profit: 2
+    stop-loss: 3

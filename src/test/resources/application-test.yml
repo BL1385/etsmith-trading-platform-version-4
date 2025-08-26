@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+flyway:
+  enabled: false
+
+tednology:
+  system:
+    connect-on-startup: false

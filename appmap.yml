@@ -1,0 +1,9 @@
+name: "etsmith-trading-platform-version-4"
+appmap_dir: "tmp/appmap"
+packages:
+- path: "db.migration"
+- path: "io.tednology"
+- path: "META-INF"
+- path: "static.js.app"
+- path: "static.js.vendor"
+- path: "templates"

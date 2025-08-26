@@ -1,0 +1,114 @@
+{
+  "properties": [
+    {
+      "name": "jforex.system.url",
+      "type": "java.lang.String",
+      "description": "JNLP URL for the Dukascopy JForex platform to connect to."
+    },
+    {
+      "name": "jforex.system.username",
+      "type": "java.lang.String",
+      "description": "Username for the trading account."
+    },
+    {
+      "name": "jforex.system.password",
+      "type": "java.lang.String",
+      "description": "Password for the trading account."
+    },
+    {
+      "name": "jforex.system.reconnects",
+      "type": "java.lang.Integer",
+      "description": "Number of times to attempt reconnection to the trading platform."
+    },
+    {
+      "name": "jforex.system.auto-reconnect",
+      "type": "java.lang.Boolean",
+      "description": "Whether to try to automatically re-connect to the Trading platform."
+    },
+    {
+      "name": "jforex.system.trades-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether trading opportunities are acted upon, or only logged."
+    },
+    {
+      "name": "jforex.system.take-profit",
+      "type": "java.lang.Double",
+      "description": "Number of pips to set the take-profit at."
+    },
+    {
+      "name": "jforex.system.stop-loss",
+      "type": "java.lang.Double",
+      "description": "Number of pips to set the stop-loss at."
+    },
+    {
+      "name": "jforex.system.ema-delta",
+      "type": "java.lang.Double",
+      "description": "The EMA 50/100 delta threshold at which an order position becomes too risky to open."
+    },
+    {
+      "name": "jforex.system.ema-slope-threshold",
+      "type": "java.lang.Double",
+      "description": "The slope threshold that determines a 'steep' or 'strong' slope."
+    },
+    {
+      "name": "jforex.system.enable-auto-migitation",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable losing order detection and loss mitigation."
+    },
+    {
+      "name": "jforex.system.strategy-mode",
+      "type": "io.tednology.strategies.StrategyMode",
+      "description": "How aggressive or conservative to run the strategy."
+    },
+    {
+      "name": "jforex.system.back-test.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether the system use back-testing instead of live-testing."
+    },
+    {
+      "name": "jforex.system.back-test.start",
+      "type": "java.time.LocalDate",
+      "description": "Start date for back-testing, must be in the past, in format YYYY-MM-DD."
+    },
+    {
+      "name": "jforex.system.back-test.start-time",
+      "type": "java.time.LocalDate",
+      "description": "Start time of day for back-testing, in format hh:mm:ss.nanosecond am."
+    },
+    {
+      "name": "jforex.system.back-test.end-time",
+      "type": "java.lang.String",
+      "description": "End time of day for back-testing, in format hh:mm:ss.nanosecond am."
+    },
+    {
+      "name": "jforex.system.back-test.duration-days",
+      "type": "java.lang.Integer",
+      "description": "The number of days' worth of data to run the back-test with."
+    },
+    {
+      "name": "jforex.system.back-test.duration-minutes",
+      "type": "java.lang.String",
+      "description": "The number of minutes' worth of data to run the back-test with."
+    },
+    {
+      "name": "tednology.system.connect-on-startup",
+      "type": "java.lang.Boolean",
+      "description": "Whether to connect to the Trading platform on system start-up."
+    },
+    {
+      "name": "tednology.system.strategy-window-open",
+      "type": "java.time.LocalTime",
+      "description": "The beginning of the daily time window at which the strategy should be running (e.g. 10:00 AM)."
+    },
+    {
+      "name": "tednology.system.strategy-window-close",
+      "type": "java.time.LocalTime",
+      "description": "The end of the daily time window at which the strategy should be running (e.g. 5:00 PM)."
+    },
+    {
+      "name": "tednology.system.contact-emails",
+      "type": "java.util.List",
+      "description": "List of contact emails to send notifications to."
+    }
+  ]
+}

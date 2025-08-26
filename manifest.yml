@@ -1,0 +1,13 @@
+---
+applications:
+- name: tednology-trading-dev
+  memory: 1G
+  instances: 1
+  timeout: 180
+  buildpack: java_buildpack
+  path: target/trading-0.5.0-SNAPSHOT.jar
+  env:
+    JAVA_OPTS: -Duser.timezone=GMT -Djava.awt.headless=true -Djava.security.egd=file:///dev/urandom
+  routes:
+    - route: trading.tednology.io
+    - route: tednology-trading-dev.cfapps.io

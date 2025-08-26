@@ -1,0 +1,8 @@
+jforex:
+  system:
+    url: http://platform.dukascopy.com/demo_4/jforex_4.jnlp
+    username: DEMO2gASbF
+    password: gASbF
+    back-test:
+      enabled: true
+

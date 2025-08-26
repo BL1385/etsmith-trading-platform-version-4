@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tednology Forex Trading Platform</title>
+</head>
+<body>
+    <h1>Tednology Forex Trading Platform</h1>
+
+    <p>Let's do this - running</p>
+
+    <h2>Current Orders</h2>
+    <table id="orders">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Position</th>
+                <th>Amount</th>
+                <th>Opened</th>
+                <th>Created</th>
+                <th>State</th>
+                <th>Take Profit</th>
+                <th>Stop Loss</th>
+                <th>Closed</th>
+                <th>Profit / Loss</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="order: ${orders}">
+                <td th:text="${order.id}"></td>
+                <td th:text="${order.long ? 'LONG' : 'SHORT'}"></td>
+                <td th:text="'$' + ${order.amount}"></td>
+                <td th:text="${order.open}"></td>
+                <td th:text="${order.createdAt}"></td>
+                <td th:text="${order.state}"></td>
+                <td th:text="${order.takeProfit}"></td>
+                <td th:text="${order.stopLoss}"></td>
+                <td th:text="${order.close}"></td>
+                <td th:text="${order.profit}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="float:left; width:49%">
+        <h2>BID EUR/USD Market Candles</h2>
+        <div id="bid-candle-chart" style="height:400px; width:100%;"></div>
+    </div>
+
+    <div style="float:right; width:49%">
+        <h2>ASK EUR/USD Market Candles</h2>
+        <div id="ask-candle-chart" style="height:400px; width:100%;"></div>
+    </div>
+
+    <h2 style="clear:both">EUR/USD Market Ticks</h2>
+    <div id="tick-chart" style="height:400px; width:100%;"></div>
+
+    <script th:src="@{/js/vendor/plotly-1.17.2.min.js}"></script>
+    <script th:src="@{/js/vendor/plotlyjs-finance.min.js}"></script>
+    <script th:src="@{/js/vendor/zepto-1.2.0.min.js}"></script>
+    <script th:src="@{/js/vendor/zepto-deferred-1.2.0.js}"></script>
+    <script th:src="@{/js/vendor/moment-2.15.1.min.js}"></script>
+    <script id="js-main" th:src="@{/js/app/main.js}"
+            th:attr="data-ticks-url=@{subscribe/ticks},
+                     data-bars-url=@{subscribe/bars},
+                     data-candles-url=@{subscribe/candles}"></script>
+</body>
+</html>

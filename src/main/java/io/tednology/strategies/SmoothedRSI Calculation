@@ -1,0 +1,56 @@
+private static double calculateSmoothedRSISingle(double[] closePrices, int period, ZonedDateTime[] timestamps) {
+    int numPriceDiffs = closePrices.length - 1;
+
+    if (numPriceDiffs < period) {
+        log.warn("Insufficient data to calculate RSI");
+        return 0.0; // Return a default value (or any appropriate value) when there is insufficient data
+    }
+
+    double[] priceDiffs = new double[numPriceDiffs];
+    for (int i = 0; i < numPriceDiffs; i++) {
+        priceDiffs[i] = closePrices[i + 1] - closePrices[i];
+    }
+
+    double[] gains = new double[period];
+    double[] losses = new double[period];
+
+    for (int i = 0; i < period; i++) {
+        if (priceDiffs[i] >= 0) {
+            gains[i] = priceDiffs[i];
+        } else {
+            losses[i] = Math.abs(priceDiffs[i]);
+        }
+    }
+
+    double initialSmoothedAvgGain = Arrays.stream(gains).sum() / period;
+    double initialSmoothedAvgLoss = Arrays.stream(losses).sum() / period;
+
+    double alpha = 1.0 / period; // Smoothing factor for the initial smoothed average gains and losses
+
+    double smoothedAvgGain = initialSmoothedAvgGain;
+    double smoothedAvgLoss = initialSmoothedAvgLoss;
+
+    for (int i = period; i < numPriceDiffs; i++) {
+        double gain = priceDiffs[i] >= 0 ? priceDiffs[i] : 0.0;
+        double loss = priceDiffs[i] < 0 ? Math.abs(priceDiffs[i]) : 0.0;
+
+        smoothedAvgGain = (alpha * gain) + ((1.0 - alpha) * smoothedAvgGain);
+        smoothedAvgLoss = (alpha * loss) + ((1.0 - alpha) * smoothedAvgLoss);
+    }
+
+    double rs = smoothedAvgGain / smoothedAvgLoss;
+    double rsi = 100.0 - (100.0 / (1.0 + rs));
+
+    // Log RSI calculation details with timestamps
+    log.info("Smoothed RSI calculation:");
+    for (int i = 0; i < closePrices.length; i++) {
+        log.info("Timestamp: {}, Close Price: {}", timestamps[i], closePrices[i]);
+    }
+    log.info("Period: {}", period);
+    log.info("Smoothed Average gain: {}", smoothedAvgGain);
+    log.info("Smoothed Average loss: {}", smoothedAvgLoss);
+    log.info("RS: {}", rs);
+    log.info("RSI: {}", rsi);
+
+    return rsi;
+}

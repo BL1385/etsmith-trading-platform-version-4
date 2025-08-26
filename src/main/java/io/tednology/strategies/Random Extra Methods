@@ -1,0 +1,296 @@
+
+
+
+ *
+ * //Stop loss adjusted from entry point
+ *
+    private double calculateTrailingStopLoss(IOrder order, ITick lastTick, double trailingDistancePips) {
+        double entryPrice = order.getOpenPrice();
+        double pipValue = order.getInstrument().getPipValue();
+
+        // Calculate the trailing price based on your entry price and trailing distance.
+        double trailingPrice = order.isLong() ? entryPrice + pipValue * trailingDistancePips : entryPrice - pipValue * trailingDistancePips;
+
+        // Ensure the new stop loss doesn't exceed the current price if it's long or short.
+        double currentStopLoss = order.getStopLossPrice();
+        double newStopLoss = order.isLong() ? Math.max(currentStopLoss, trailingPrice) : Math.min(currentStopLoss, trailingPrice);
+
+        return newStopLoss;
+    }
+*/
+
+
+/**
+    private void applyTrailingStopLossWithTakeProfit(IOrder order, ITick lastTick, double trailingDistancePips, double takeProfitPips) throws JFException {
+        if (shouldApplyTrailingStopLoss) {
+            // Calculate the new trailing stop loss based on order parameters
+            double trailingStopLoss = calculateTrailingStopLoss(order, lastTick, trailingDistancePips);
+
+            // Calculate the take profit level
+            double currentPrice = order.isLong() ? lastTick.getAsk() : lastTick.getBid();
+            double takeProfitLevel = order.isLong() ? currentPrice + takeProfitPips * order.getInstrument().getPipValue() : currentPrice - takeProfitPips * order.getInstrument().getPipValue();
+
+            // Determine the new stop loss based on trailing and take profit
+            double newStopLoss = order.isLong() ? Math.max(trailingStopLoss, takeProfitLevel) : Math.min(trailingStopLoss, takeProfitLevel);
+
+            // Check if the new stop loss is different from the current stop loss
+            if (newStopLoss != order.getStopLossPrice()) {
+                order.setStopLossPrice(newStopLoss);
+                log.info("Stop Loss adjusted to {}", newStopLoss);
+            } else {
+                log.info("Stop Loss is already at the desired level. No update required.");
+            }
+        }
+    }
+*/
+/**
+    private double calculatePercentageTrailingStopLoss(IOrder order, ITick lastTick, double trailingPercentage) {
+        double currentStopLoss = order.getStopLossPrice();
+        double currentPrice = order.isLong() ? lastTick.getAsk() : lastTick.getBid();
+
+        // Calculate the new stop loss based on the trailing percentage
+        double trailingPrice = currentPrice * (1 - trailingPercentage / 100.0);
+
+        // Ensure the new stop loss doesn't exceed the current stop loss
+        double newStopLoss = order.isLong() ? Math.max(currentStopLoss, trailingPrice) : Math.min(currentStopLoss, trailingPrice);
+
+        return newStopLoss;
+    }
+*/
+
+/**
+    private double calculateTrailingStopLoss(IOrder order, ITick lastTick, double trailingDistancePips) {
+        double pipValue = order.getInstrument().getPipValue();
+        double currentPrice = order.isLong() ? lastTick.getBid() : lastTick.getAsk();
+
+        // Calculate the trailing stop loss distance in price units
+        double trailingDistancePrice = trailingDistancePips * pipValue;
+
+        // Calculate the new trailing stop loss price based on order direction
+        double newStopLoss = order.isLong() ? currentPrice - trailingDistancePrice : currentPrice + trailingDistancePrice;
+
+        // Ensure the new stop loss doesn't exceed the current stop loss
+        return order.isLong() ? Math.max(order.getStopLossPrice(), newStopLoss) : Math.min(order.getStopLossPrice(), newStopLoss);
+    }
+*/
+
+/**
+    private void trailStopLoss(IOrder order, ITick tick, double trailingDistancePips) throws JFException {
+        double currentStopLoss = order.getStopLossPrice();
+        double initialStopLossPips = stopLossPips;
+
+        // Calculate the new stop loss based on the order's direction
+        double newStopLoss = calculateNewStopLoss(order, tick, trailingDistancePips);
+
+        // Calculate the maximum allowable stop loss based on the initial stop loss
+        double maxStopLoss = order.getOrderCommand().isLong()
+                ? order.getOpenPrice() - instrument.getPipValue() * initialStopLossPips
+                : order.getOpenPrice() + instrument.getPipValue() * initialStopLossPips;
+
+        // Ensure the new stop loss doesn't exceed the maximum allowable stop loss
+        newStopLoss = order.getOrderCommand().isLong()
+                ? Math.min(newStopLoss, maxStopLoss)
+                : Math.max(newStopLoss, maxStopLoss);
+
+        // Ensure the new stop loss doesn't exceed the initial stop loss
+        if (order.getOrderCommand().isLong()) {
+            newStopLoss = Math.min(newStopLoss, currentStopLoss + instrument.getPipValue() * initialStopLossPips);
+        } else {
+            newStopLoss = Math.max(newStopLoss, currentStopLoss - instrument.getPipValue() * initialStopLossPips);
+        }
+
+        // Set the new stop loss
+        if (newStopLoss != currentStopLoss) {
+            try {
+                order.setStopLossPrice(newStopLoss);
+                log.info("Trailing Stop Loss adjusted to {}", newStopLoss);
+            } catch (JFException e) {
+                log.error("Error setting trailing stop loss", e);
+            }
+        }
+    }
+
+
+    private void mitigateStopLoss(IOrder order, ITick tick, double mitigationDistancePips) throws JFException {
+        double currentStopLoss = order.getStopLossPrice();
+        double initialStopLossPips = stopLossPips;
+
+        // Calculate the new stop loss based on the order's direction
+        double newStopLoss = calculateNewStopLoss(order, tick, mitigationDistancePips);
+
+        // Calculate the maximum allowable stop loss based on the initial stop loss
+        double maxStopLoss = order.getOrderCommand().isLong()
+                ? order.getOpenPrice() - instrument.getPipValue() * initialStopLossPips
+                : order.getOpenPrice() + instrument.getPipValue() * initialStopLossPips;
+
+        // Ensure the new stop loss doesn't exceed the maximum allowable stop loss
+        newStopLoss = order.getOrderCommand().isLong()
+                ? Math.min(newStopLoss, maxStopLoss)
+                : Math.max(newStopLoss, maxStopLoss);
+
+        // Set the new stop loss only if it's closer to the current price and doesn't exceed the maximum allowable stop loss
+        if (order.getOrderCommand().isLong() && newStopLoss > currentStopLoss) {
+            newStopLoss = Math.min(newStopLoss, currentStopLoss);
+        } else if (order.getOrderCommand().isShort() && newStopLoss < currentStopLoss) {
+            newStopLoss = Math.max(newStopLoss, currentStopLoss);
+        }
+
+        // Set the new stop loss
+        if (newStopLoss != currentStopLoss) {
+            try {
+                order.setStopLossPrice(newStopLoss);
+                log.info("Stop Loss mitigated to {}", newStopLoss);
+            } catch (JFException e) {
+                log.error("Error setting mitigated stop loss", e);
+            }
+        }
+    }
+*/
+
+/**
+    private void applyStopLossMitigation(IOrder order, ITick lastTick) throws JFException {
+        log.info("Applying stop loss mitigation for order: {}", order.getLabel());
+
+        double pipValue = order.getInstrument().getPipValue();
+        double currentStopLoss = order.getStopLossPrice();
+        double initialStopLossPips = stopLossPips;
+
+        // Calculate the new adjusted stop loss based on the order's direction and mitigation distance
+        double newAdjustedStopLoss = currentStopLoss;
+
+        if (order.isLong()) {
+            newAdjustedStopLoss = Math.max(newAdjustedStopLoss, lastTick.getBid() - pipValue * mitigationDistancePips);
+        } else {
+            newAdjustedStopLoss = Math.min(newAdjustedStopLoss, lastTick.getAsk() + pipValue * mitigationDistancePips);
+        }
+
+        // Calculate the maximum allowable stop loss based on the initial stop loss
+        double maxStopLoss = order.getOpenPrice() - pipValue * initialStopLossPips;
+        maxStopLoss = order.isLong() ? Math.min(maxStopLoss, currentStopLoss) : Math.max(maxStopLoss, currentStopLoss);
+
+        // Ensure the new adjusted stop loss doesn't exceed the maximum allowable stop loss
+        newAdjustedStopLoss = order.isLong() ? Math.min(newAdjustedStopLoss, maxStopLoss) : Math.max(newAdjustedStopLoss, maxStopLoss);
+
+        // Set the new adjusted stop loss only if it's different from the current stop loss
+        if (newAdjustedStopLoss != currentStopLoss) {
+            log.info("Stop Loss before mitigation: {}", currentStopLoss);
+            log.info("Stop Loss after mitigation: {}", newAdjustedStopLoss);
+
+            try {
+                order.setStopLossPrice(newAdjustedStopLoss);
+                log.info("Stop Loss mitigated to {}", newAdjustedStopLoss);
+            } catch (JFException e) {
+                log.error("Error setting mitigated stop loss", e);
+            }
+        } else {
+            log.info("Stop Loss remains the same. No update required.");
+        }
+    }
+*/
+
+
+
+/** RSI LIVE DATA METHODS
+import com.dukascopy.api.*;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+
+public class RSIData {
+
+    public RSIData() {
+    }
+
+    public static List<Double> getMinuteClosePrices(IHistory history, Instrument instrument, int period) throws JFException {
+        List<Double> closePrices = new ArrayList<>();
+        long currentTime = history.getBar(instrument, Period.ONE_MIN, OfferSide.BID, 0).getTime(); // Adjusted for current bar
+        long startTime = currentTime - TimeUnit.MINUTES.toMillis(period); // Fetch 'period' minutes data
+        List<IBar> bars = history.getBars(instrument, Period.ONE_MIN, OfferSide.BID, startTime, currentTime);
+        for (IBar bar : bars) {
+            closePrices.add(bar.getClose());
+        }
+        return closePrices;
+    }
+
+    public static List<Double> getHistoricalClosePrices(IHistory history, Instrument instrument, long from, long to) throws JFException {
+        List<Double> closePrices = new ArrayList<>();
+        long roundedFrom = history.getBarStart(Period.ONE_MIN, from);
+        long roundedTo = history.getBarStart(Period.ONE_MIN, to);
+
+        List<IBar> bars = history.getBars(instrument, Period.ONE_MIN, OfferSide.BID, Filter.NO_FILTER, roundedFrom, roundedTo);
+        for (IBar bar : bars) {
+            closePrices.add(bar.getClose());
+        }
+        return closePrices;
+    }
+
+    public double calculateRSI(List<Double> closePrices, int period) {
+        int numPriceDiffs = closePrices.size() - 1;
+
+        if (numPriceDiffs < period) {
+            throw new IllegalArgumentException("Insufficient data to calculate RSI");
+        }
+
+        double[] priceDiffs = new double[numPriceDiffs];
+        for (int i = 0; i < numPriceDiffs; i++) {
+            priceDiffs[i] = closePrices.get(i + 1) - closePrices.get(i);
+        }
+
+        double[] gains = new double[numPriceDiffs];
+        double[] losses = new double[numPriceDiffs];
+
+        for (int i = 0; i < numPriceDiffs; i++) {
+            if (priceDiffs[i] >= 0) {
+                gains[i] = priceDiffs[i];
+            } else {
+                losses[i] = Math.abs(priceDiffs[i]);
+            }
+        }
+
+        double sumOfInitialGains = Arrays.stream(gains).limit(period).sum();
+        double sumOfInitialLosses = Arrays.stream(losses).limit(period).sum();
+
+        double initialAvgGain = sumOfInitialGains / period;
+        double initialAvgLoss = sumOfInitialLosses / period;
+
+        double alpha = 1.0 / period;
+
+        double avgGain = initialAvgGain;
+        double avgLoss = initialAvgLoss;
+
+        for (int i = period; i < numPriceDiffs; i++) {
+            double gain = priceDiffs[i] >= 0 ? priceDiffs[i] : 0.0;
+            double loss = priceDiffs[i] < 0 ? Math.abs(priceDiffs[i]) : 0.0;
+
+            avgGain = (alpha * gain) + ((1.0 - alpha) * avgGain);
+            avgLoss = (alpha * loss) + ((1.0 - alpha) * avgLoss);
+        }
+
+        double rs = avgGain / avgLoss;
+        double rsi = 100.0 - (100.0 / (1.0 + rs));
+
+        return rsi;
+    }
+
+    public Pair<Boolean, Boolean> isRsiConditionMet(double currentRsiValue, double previousRsiValue, double rsiThreshold1, double rsiThreshold2) {
+        boolean buyCondition1Met = false;
+        boolean sellCondition1Met = false;
+
+        // Check if current RSI is above the buy threshold and the previous RSI was below the buy threshold
+        if (currentRsiValue > rsiThreshold1 && previousRsiValue <= rsiThreshold1) {
+            buyCondition1Met = true;
+        }
+
+        // Check if current RSI is below the sell threshold and the previous RSI was above the sell threshold
+        if (currentRsiValue < rsiThreshold2 && previousRsiValue >= rsiThreshold2) {
+            sellCondition1Met = true;
+        }
+
+        return Pair.of(buyCondition1Met, sellCondition1Met);
+    }
+}
+ */RSI LIVE DATA METHODS

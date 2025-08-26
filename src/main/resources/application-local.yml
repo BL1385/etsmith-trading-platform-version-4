@@ -1,0 +1,47 @@
+spring:
+  thymeleaf:
+    cache: false
+  resources:
+    cache-period: 0
+  mail:
+    host: smtp.mailgun.org
+    username: postmaster@3dshowing.com
+    port: 587
+    password: rd4_x12345k7VCyLB_kA0cDn2BQ
+    default-encoding: UTF-8
+  jpa:
+    show-sql: false
+  datasource:
+    url: jdbc:postgresql://localhost:5433/trading-analysis
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: super-password
+
+flyway:
+  enabled: true
+
+tednology:
+  system:
+    contact-emails: brandon.lusignan@gmail.com
+    strategy-window-open: 00:00:00.000000000 AM
+    strategy-window-close: 07:29:59.999999999 PM
+
+jforex:
+  system:
+    url: https://platform.dukascopy.com/demo_4/jforex_4.jnlp
+    username: DEMO2EVCpo
+    password: EVCpo
+    auto-reconnect: true
+    trades-enabled: true
+    back-test:
+      enabled: true
+      start: 2023-10-23
+      start-time: 08:42:00.000000000 AM
+      end-time: 10:03:10.999999999 PM
+      duration-days: 10
+    take-profit: 12.0
+    stop-loss: 3.0
+    //ema-delta: 0.00007
+    //ema-slope-threshold: 0.000025
+    enable-auto-mitigation: true
+    strategy-mode: CONSERVATIVE
