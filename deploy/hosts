@@ -1,0 +1,8 @@
+[localhost]
+127.0.0.1
+
+[amazon]
+192.168.1.1
+
+[servers:children]
+amazon
